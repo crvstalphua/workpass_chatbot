@@ -7,17 +7,17 @@ import streamlit as st
 from streamlit_chat import message
 from langdetect import detect
 from langdetect import DetectorFactory
-# from dotenv import find_dotenv, load_dotenv
+from dotenv import find_dotenv, load_dotenv
 
 # local modules
 from function import conversational_chat, start_conversation
 
-# load_dotenv(find_dotenv())
+load_dotenv(find_dotenv())
 
 
 DetectorFactory.seed = 0
-os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
-# OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+# os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if 'history' not in st.session_state:
     st.session_state['history'] = []
 
@@ -54,13 +54,14 @@ with container:
         with st.spinner('loading...'):
             if send_button and user_input:
                 lang = detect(user_input)
-                if lang == "zh-cn" or lang == "zh-tw":
+                if lang == "zh-cn" or lang == "zh-tw" or lang == "ko":
                     response_text = f'{user_input}. Return your response in Mandarin. If you don"t have the info, just respond with "我很抱歉，但我没有可用的细节。"'
-                elif lang == "ms":
+                elif lang == "ms" or lang == 'id':
                     response_text = f'{user_input}. Return your response in Bahasa Malay. If you don"t have the info, just respond with "Maaf, tetapi saya tidak mempunyai maklumat."'
                 else:
                     response_text = f'{user_input}. If you don"t have the info, just respond with "I am sorry but I do not have the information."'
 
+                print("LANG", lang)
                 print("response_text", response_text)
 
                 output = conversational_chat(
@@ -69,7 +70,6 @@ with container:
                 )
                 st.session_state['past'].append(user_input)
                 st.session_state['generated'].append(output)
-
 
     if st.button('Reset this conversation?'):
         st.session_state['history'] = []
