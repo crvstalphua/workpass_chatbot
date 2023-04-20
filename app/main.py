@@ -5,6 +5,7 @@ import re
 # third-party modules
 import streamlit as st
 from streamlit_chat import message
+from langdetect import detect
 # from dotenv import find_dotenv, load_dotenv
 
 # local modules
