@@ -50,9 +50,11 @@ with container:
 
         with st.spinner('loading...'):
             if send_button and user_input:
-                chinese_chars = chinese_pattern.findall(user_input)
-                if len(chinese_chars) > 0:
-                    response_text = f'{user_input}. Return your response in Mandarin. If you don"t have the info, just respond with "“我不知道"'
+                lang = detect(user_input)
+                if lang == "zh-cn" or lang == "zh-tw":
+                    response_text = f'{user_input}. Return your response in Mandarin. If you don"t have the info, just respond with "我很抱歉，但我没有可用的细节。"'
+                elif lang == "ms":
+                    response_text = f'{user_input}. Return your response in Bahasa Malay. If you don"t have the info, just respond with "Maaf, tetapi saya tidak mempunyai maklumat."'
                 else:
                     response_text = f'{user_input}. If you don"t have the info, just respond with "I am sorry but I do not have the information."'
 
