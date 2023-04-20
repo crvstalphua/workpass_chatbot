@@ -12,7 +12,7 @@ from langdetect import DetectorFactory
 # local modules
 from function import conversational_chat, start_conversation
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
 
 
 DetectorFactory.seed = 0
