@@ -6,6 +6,7 @@ import re
 import streamlit as st
 from streamlit_chat import message
 from langdetect import detect
+from langdetect import DetectorFactory
 # from dotenv import find_dotenv, load_dotenv
 
 # local modules
@@ -14,6 +15,7 @@ from function import conversational_chat, start_conversation
 # load_dotenv(find_dotenv())
 
 
+DetectorFactory.seed = 0
 os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
 # OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if 'history' not in st.session_state:
@@ -58,6 +60,8 @@ with container:
                     response_text = f'{user_input}. Return your response in Bahasa Malay. If you don"t have the info, just respond with "Maaf, tetapi saya tidak mempunyai maklumat."'
                 else:
                     response_text = f'{user_input}. If you don"t have the info, just respond with "I am sorry but I do not have the information."'
+
+                print("response_text", response_text)
 
                 output = conversational_chat(
                     chain,
