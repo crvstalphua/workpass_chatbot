@@ -14,7 +14,6 @@ import pinecone
 
 # load_dotenv(find_dotenv())
 
-
 os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
 os.environ["INDEX_NAME"] == st.secrets["INDEX_NAME"]
 os.environ["PINECONE_API_KEY"] == st.secrets["PINECONE_API_KEY"]
