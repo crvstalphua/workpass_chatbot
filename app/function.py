@@ -2,7 +2,7 @@
 import os
 
 # third-party modules
-from dotenv import find_dotenv, load_dotenv
+# from dotenv import find_dotenv, load_dotenv
 import streamlit as st
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
@@ -12,12 +12,12 @@ import pinecone
 
 # local modules
 
-load_dotenv(find_dotenv())
+# load_dotenv(find_dotenv())
 
-# os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
-# os.environ["INDEX_NAME"] == st.secrets["INDEX_NAME"]
-# os.environ["PINECONE_API_KEY"] == st.secrets["PINECONE_API_KEY"]
-# os.environ["PINECONE_API_ENV"] == st.secrets["PINECONE_API_ENV"]
+os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
+os.environ["INDEX_NAME"] == st.secrets["INDEX_NAME"]
+os.environ["PINECONE_API_KEY"] == st.secrets["PINECONE_API_KEY"]
+os.environ["PINECONE_API_ENV"] == st.secrets["PINECONE_API_ENV"]
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 INDEX_NAME = os.getenv('INDEX_NAME')

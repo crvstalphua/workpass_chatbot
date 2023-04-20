@@ -7,7 +7,7 @@ import streamlit as st
 from streamlit_chat import message
 from langdetect import detect
 from langdetect import DetectorFactory
-from dotenv import find_dotenv, load_dotenv
+# from dotenv import find_dotenv, load_dotenv
 
 # local modules
 from function import conversational_chat, start_conversation
@@ -16,8 +16,8 @@ load_dotenv(find_dotenv())
 
 
 DetectorFactory.seed = 0
-# os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+os.environ["OPENAI_API_KEY"] == st.secrets["OPENAI_API_KEY"]
+# OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 if 'history' not in st.session_state:
     st.session_state['history'] = []
 
