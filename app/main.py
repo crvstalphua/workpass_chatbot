@@ -66,7 +66,7 @@ with container:
 
     if st.button('Reset this conversation?'):
         st.session_state['history'] = []
-        st.session_state['past'] = []
+        st.session_state['past'] = ["Hey ! 👋"]
         st.session_state['generated'] = ["Hello! I'm your guide for migrant domestic workers. Ask me anything!"]
 
 
