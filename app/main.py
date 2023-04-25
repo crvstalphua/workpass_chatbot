@@ -80,5 +80,5 @@ with container:
 if st.session_state['generated']:
     with response_container:
         for i in range(len(st.session_state['generated'])):
-            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="adventurer")
+            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="personas")
             message(st.session_state["generated"][i], key=str(i), avatar_style="bottts")
