@@ -29,7 +29,7 @@ To run the app, you will need to have the following installed:
 # Installation
 1. Clone the repository
 ```bash
-$ git clone git@sgts.gitlab-dedicated.com:wog/gvt/gds-ace/general/ace-llm/llm-streamlit-chatbot.git
+$ git clone https://github.com/Papagoat/llm-sgwp-chatbot.git
 ```
 2. Create a virtual environment:
 ```bash
