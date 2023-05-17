@@ -1,114 +1,106 @@
-# Simple *Streamlit* project template
+# Chatbot Application with Streamlit Chat
 
-The purpose of this repository is to provide an initial project template for
-[Streamlit](https://streamlit.io/) apps that simplifies and speeds up development.
+This is a chatbot application built using Streamlit Chat that utilises several dependencies to provide conversational functionality. 
+The application is designed to allow users to interact with a chatbot that can answer questions and provide information by querying a Pinecone vector database.
 
-## Development
+---
 
-### Get the template
+# Requirements
+To run the app, you will need to have the following installed:
 
-To use the tamplate first clone this repository.
+1. Python 3.6 or higher
+2. Virtualenv
 
+---
+
+# Dependencies
+
+1. **langchain**: Framework for LLMs.
+2. **langdetect**: Python library for detecting the language of a given text.
+3. **openai**: Python library for accessing OpenAI's GPT models.
+4. **pinecone-client**: Client library for Pinecone, a vector database that allows you to store and search high-dimensional vectors.
+5. **python-dotenv**: Python library for loading environment variables from a .env file.
+6. **streamlit**: Python library for building interactive web applications.
+7. **streamlit_chat**: Streamlit component that provides a chat widget for use in web applications.
+8. **tiktoken**: Fast BPE tokeniser for use with OpenAI's models. (Not from TikTok)
+
+---
+
+# Installation
+1. Clone the repository
 ```bash
-git clone https://github.com/pixpack/streamlit-base.git my-streamlit-app
+$ git clone git@sgts.gitlab-dedicated.com:wog/gvt/gds-ace/general/ace-llm/llm-streamlit-chatbot.git
+```
+2. Create a virtual environment:
+```bash
+$ python -m venv .venv
+$ source .venv/bin/activate
+```
+3. Install the dependencies:
+```bash
+(venv)$ pip install -r requirements.txt
 ```
 
-Move into the templates directory.
+---
 
+# Environment Variables
+
+| KEY | VALUE |
+|---|---|
+| INDEX_NAME | string |
+| OPENAI_API_KEY | string |
+| PINECONE_API_KEY | string |
+| PINECONE_API_ENV | string e.g. "us-west4-gcp" |
+
+# Usage
+
+## Pinecone Index
+1. Create a `.env` file and add your `PINECONE_API_KEY` and `PINECONE_API_ENV`.
+2. Comment out the `create_vectors()` function in `/app/generate_vectors.py` if you wish to create your indexes programmatically.
 ```bash
-cd my-streamlit-app
+(venv)$ python app/generate_vectors.py
 ```
 
-On Github you can also click the `Use this template` button to automatically create
-your own repository based on this template.
-
-### Create the development environment
-
-Create a virtual environment.
-
+## Pinecone Embeddings
+1. Once your index instance is ready, you can proceed to create your vector embeddings.
+2. Comment out the `create_index()` function in `/app/generate_vectors.py`.
+3. Add your `INDEX_NAME` in the `.env` file and your `DOCUMENT` in `constants.py`. 
+    - Note: Store documents in `/app/static/`.
+4. Execute the following command to geneate the embeddings. It could take a couple of minutes for large documents.
 ```bash
-python -m venv .venv
+(venv)$ python app/generate_vectors.py
 ```
 
-Activate the virtual environment.
+---
 
-On Linux, macOS.
-
+# Folder Structure
 ```bash
-source .venv/bin/activate
+├── LICENSE
+├── README.md
+├── app
+│   ├── __init__.py
+│   ├── constants.py
+│   ├── function.py
+│   ├── generate_vectors.py
+│   ├── main.py
+│   └── static
+└── requirements.txt
 ```
 
-On Windows (Powershell).
+---
 
+# Local Testing
+Execute the following command to test the chatbot locally.
 ```bash
-.venv/Scripts/Activate.ps1
+(venv)$ streamlit run app/main.py
 ```
 
-Get the development dependencies.
+---
 
-```bash
-python -m pip install --upgrade pip && \
-pip install -r requirements-dev.txt
-```
+# Contributing
+Contributions are welcome! If you find a bug or want to suggest a new feature, please open an issue or submit a pull request.
 
-### Edit the code
+---
 
-Start editing the app files in the `app` directory with your favourite editor.
-
-For more information on how to develop Streamlit apps, check [Streamlit documentation](https://docs.streamlit.io/).
-
-### Run the app
-
-Start the app with the `streamlit run` command.
-
-```bash
-streamlit run app/main.py
-```
-
-## Testing
-
-Run the tests.
-
-```bash
-pytest
-```
-
-For more information on testing, visit [pytest documentation](https://docs.pytest.org/).
-
-## Deployment
-
-The template is set up with Docker to deploy the app.
-
-### Configuration
-
-Configure the streamlit `config.toml` to your needs.
-> When changing the default ports in the configuration, remember to also change
-> them in `docker run` command.
-
-Build the Docker image.
-
-```bash
-docker build -t streamlit-app .
-```
-
-Run the container.
-
-```bash
-docker run -dp 8501:8501 streamlit-app
-```
-
-## Contributing
-
-Contributions are very welcome.
-
-To contribute:
-
-1. Create an issue you would like to work on.
-2. Fork the repository.
-3. Create a pull request and attach the issue.
-
-## Acknowledgments
-
-The initial streamlit config comes from the great
-[Awesome Streamlit](https://github.com/MarcSkovMadsen/awesome-streamlit)
-repository.
+# License
+This project is licensed under the MIT License.
