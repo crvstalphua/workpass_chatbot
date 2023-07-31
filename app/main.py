@@ -30,7 +30,7 @@ welcome_text = "How would you like us to help you today?"
 button_text = "Send"
 
 # Conditional response
-default_response = "Return your response in English. Respond with 'I am sorry but I do not have the information.' if you don't have the info."
+default_response = "Return your response in English. Respond with 'I'm sorry, I don't have the information.' if you don't have the inro."
 mandarin_response = "Return your response in Mandarin. Respond with '我很抱歉，但我没有可用的细节。' if you don't have the info."
 malay_response = "Return your response in Bahasa Malay. Respond with 'Maaf, tetapi saya tidak mempunyai maklumat.' if you don't have the info."
 

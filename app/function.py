@@ -3,115 +3,62 @@ import os
 
 # third-party modules
 import streamlit as st
-from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
-from langchain.vectorstores import Pinecone
 from langchain.retrievers import AmazonKendraRetriever
-from langchain.chains import RetrievalQA
-from langchain import OpenAI
 from langchain.prompts import PromptTemplate
-import pinecone
+
 
 # local modules
 from constants import (
-    INDEX_NAME,
     MODEL_NAME,
     OPENAI_API_KEY,
-    #PINECONE_API_ENV,
-    #PINECONE_API_KEY,
     KENDRA_INDEX_ID,
     TEMPERATURE
 )
 
-'''
-def build_chain():
-  region = os.environ["AWS_REGION"]
-  kendra_index_id = os.environ["KENDRA_INDEX_ID"]
+# Build prompt
+condense_template= """Given the following conversation and a follow up question, 
+rephrase the follow up question to be a standalone question. 
 
-  llm = OpenAI(batch_size=5, temperature=0, max_tokens=300)
+Chat History:
+{chat_history}
+Follow Up Input: {question}
+Standalone question:
 
-  retriever = AmazonKendraRetriever(index_id=kendra_index_id)
+"""
+CONDENSE_PROMPT = PromptTemplate(input_variables=["chat_history", "question"], template=condense_template)
 
-  prompt_template = """
-  The following is a friendly conversation between a human and an AI. 
-  The AI is talkative and provides lots of specific details from its context.
-  If the AI does not know the answer to a question, it truthfully says it 
-  does not know.
-  {context}
-  Instruction: Based on the above documents, provide a detailed answer for, {question} Answer "don't know" 
-  if not present in the document. 
-  Solution:"""
-  PROMPT = PromptTemplate(
-      template=prompt_template, input_variables=["context", "question"]
-  )
-  chain_type_kwargs = {"prompt": PROMPT}
-    
-  return RetrievalQA.from_chain_type(
-      llm, 
-      chain_type="stuff", 
-      retriever=retriever, 
-      chain_type_kwargs=chain_type_kwargs, 
-      return_source_documents=True
-  )
+qa_template = """You are a chatbot meant to answer queries sent by migrant workers, 
+solely with the following context provided. 
+If you don't know the answer, just say that you don't know, don't try to make up an answer.
+Use three sentences maximum and keep the answer as concise as possible. 
+If question is in Mandarin, translate it to English before searching the context, then translate the answer back to Mandarin.
+Always say "thanks for asking!" at the end of the answer.
+{context}
 
-def run_chain(chain, prompt: str, history=[]):
-    result = chain(prompt)
-    # To make it compatible with chat samples
-    return {
-        "answer": result['result'],
-        "source_documents": result['source_documents']
-    }
-
-if __name__ == "__main__":
-    chain = build_chain()
-    result = run_chain(chain, "What's SageMaker?")
-    print(result['answer'])
-    if 'source_documents' in result:
-        print('Sources:')
-        for d in result['source_documents']:
-          print(d.metadata['source'])
-
-
-pinecone.init(
-    api_key=PINECONE_API_KEY,
-    environment=PINECONE_API_ENV
-)
-
-'''
+Question: {question}
+Helpful Answer:"""
+QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],template=qa_template,)
 
 def start_conversation():
-    """
-        Embeddings
-    """
-
-    # texts = text_splitter.split_text(saved_file)
-    embeddings = OpenAIEmbeddings(
-        openai_api_key=OPENAI_API_KEY
-    )
-    '''
-    vectors = Pinecone.from_existing_index(
-        INDEX_NAME,
-        embeddings
-    )
-    
-    chain = ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(
-            temperature=TEMPERATURE,
-            model_name=MODEL_NAME,
-            openai_api_key=OPENAI_API_KEY
-        ), retriever=vectors.as_retriever())
-    '''
 
     retriever = AmazonKendraRetriever(index_id=KENDRA_INDEX_ID)
-
-    chain = ConversationalRetrievalChain.from_llm(
-        llm=ChatOpenAI(
+    llm=ChatOpenAI(
             temperature=TEMPERATURE,
             model_name=MODEL_NAME,
-            openai_api_key=OPENAI_API_KEY
-        ), retriever=retriever,
+            openai_api_key=OPENAI_API_KEY,
+            verbose=True
+        )
+
+    chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        condense_question_prompt=CONDENSE_PROMPT,
+        retriever=retriever,
+        combine_docs_chain_kwargs={'prompt': QA_CHAIN_PROMPT},
+        verbose=True,
         return_source_documents=True)
+
     return chain
 
 
@@ -119,4 +66,10 @@ def conversational_chat(chain, query):
 
     result = chain({"question": query, "chat_history": st.session_state['history']})
     st.session_state['history'].append((query, result["answer"]))
-    return result['answer'] + '\n \n Source: ' +((result['source_documents'][0]).metadata)['source']
+    output = result['answer']
+    if 'source_documents' in result:
+        output = output + '\n \n Sources:'
+        for d in result['source_documents']:
+            output += '\n' + d.metadata['source']
+    #output = result['answer'] + '\n \n Source: ' + ((result['source_documents'][0]).metadata)['source']
+    return output
