@@ -1,7 +1,7 @@
 # Chatbot Application with Streamlit Chat
 
 This is a chatbot application built using Streamlit Chat that utilises several dependencies to provide conversational functionality. 
-The application is designed to allow users to interact with a chatbot that can answer questions and provide information by querying a Pinecone vector database.
+The application is designed to allow users to interact with a chatbot that can answer questions and provide information by querying an AWS Kendra vector index.
 
 ---
 
@@ -18,18 +18,18 @@ To run the app, you will need to have the following installed:
 1. **langchain**: Framework for LLMs.
 2. **langdetect**: Python library for detecting the language of a given text.
 3. **openai**: Python library for accessing OpenAI's GPT models.
-4. **pinecone-client**: Client library for Pinecone, a vector database that allows you to store and search high-dimensional vectors.
-5. **python-dotenv**: Python library for loading environment variables from a .env file.
-6. **streamlit**: Python library for building interactive web applications.
-7. **streamlit_chat**: Streamlit component that provides a chat widget for use in web applications.
-8. **tiktoken**: Fast BPE tokeniser for use with OpenAI's models. (Not from TikTok)
+4. **python-dotenv**: Python library for loading environment variables from a .env file.
+5. **streamlit**: Python library for building interactive web applications.
+6. **streamlit_chat**: Streamlit component that provides a chat widget for use in web applications.
+7. **tiktoken**: Fast BPE tokeniser for use with OpenAI's models. (Not from TikTok)
+8. **aws kendra**: Vector indexer with semantic search capabilities. 
 
 ---
 
 # Installation
 1. Clone the repository
 ```bash
-$ git clone https://github.com/Papagoat/llm-sgwp-chatbot.git
+$ git clone https://github.com/crvstalphua/workpass_chatbot.git
 ```
 2. Create a virtual environment:
 ```bash
@@ -47,29 +47,21 @@ $ source .venv/bin/activate
 
 | KEY | VALUE |
 |---|---|
-| INDEX_NAME | string |
 | OPENAI_API_KEY | string |
-| PINECONE_API_KEY | string |
-| PINECONE_API_ENV | string e.g. "us-west4-gcp" |
+| AWS_ACCESS_KEY_ID | string |
+| AWS_SECRET_ACCESS_KEY | string |
+| AWS_DEFAULT_REGION | string e.g. "us-east-1" |
 
 # Usage
 
-## Pinecone Index
-1. Create a `.env` file and add your `PINECONE_API_KEY` and `PINECONE_API_ENV`.
-2. Comment out the `create_vectors()` function in `/app/generate_vectors.py` if you wish to create your indexes programmatically.
-```bash
-(venv)$ python app/generate_vectors.py
-```
+## AWS Kendra Index
+1. Set up your AWS account and create an index on AWS Kendra
+2. Connect your data source and let Kendra perform the indexing
 
-## Pinecone Embeddings
-1. Once your index instance is ready, you can proceed to create your vector embeddings.
-2. Comment out the `create_index()` function in `/app/generate_vectors.py`.
-3. Add your `INDEX_NAME` in the `.env` file and your `DOCUMENT` in `constants.py`. 
-    - Note: Store documents in `/app/static/`.
-4. Execute the following command to geneate the embeddings. It could take a couple of minutes for large documents.
-```bash
-(venv)$ python app/generate_vectors.py
-```
+## Environment Set-Up
+1. Create a `.env` file and add your various environment variables.
+2. If you are hosting locally, comment out the constants which are obtained from streamlit (e.g. OPENAI_API_KEY == st.secrets["OPENAI_API_KEY"])
+4. If you are hosting on streamlit, include all the enviroment variables in the secrets folder on streamlit.
 
 ---
 
@@ -94,6 +86,12 @@ Execute the following command to test the chatbot locally.
 ```bash
 (venv)$ streamlit run app/main.py
 ```
+
+---
+
+# References
+https://github.com/Papagoat/llm-sgwp-chatbot.git
+https://github.com/aws-samples/amazon-kendra-langchain-extensions/blob/main/kendra_retriever_samples/kendra_chat_open_ai.py
 
 ---
 
