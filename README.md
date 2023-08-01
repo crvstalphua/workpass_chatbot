@@ -48,6 +48,7 @@ $ source .venv/bin/activate
 | KEY | VALUE |
 |---|---|
 | OPENAI_API_KEY | string |
+| KENDRA_INDEX_ID | string |
 | AWS_ACCESS_KEY_ID | string |
 | AWS_SECRET_ACCESS_KEY | string |
 | AWS_DEFAULT_REGION | string e.g. "us-east-1" |
@@ -61,7 +62,7 @@ $ source .venv/bin/activate
 ## Environment Set-Up
 1. Create a `.env` file and add your various environment variables.
 2. If you are hosting locally, comment out the constants which are obtained from streamlit (e.g. OPENAI_API_KEY == st.secrets["OPENAI_API_KEY"])
-4. If you are hosting on streamlit, include all the enviroment variables in the secrets folder on streamlit.
+3. If you are hosting on streamlit, include all the enviroment variables in the secrets folder on streamlit.
 
 ---
 
