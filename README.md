@@ -92,6 +92,7 @@ Execute the following command to test the chatbot locally.
 
 # References
 https://github.com/Papagoat/llm-sgwp-chatbot.git
+
 https://github.com/aws-samples/amazon-kendra-langchain-extensions/blob/main/kendra_retriever_samples/kendra_chat_open_ai.py
 
 ---
