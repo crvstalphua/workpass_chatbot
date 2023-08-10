@@ -1,0 +1,27 @@
+# Lines starting with pound are comments and blank lines are ignored.
+
+# Synonym relationships can be defined as unidirectional or bidirectional relationships.
+
+# Unidirection relationships are represented by any term sequence 
+# on the left hand side (LHS) of "=>" followed by synonyms on the right hand side (RHS)
+CodeStar => AWS CodeStar
+
+# To map terms vice versa
+ML => Machine Learning
+Machine Learning => ML
+
+# Multiple synonym relationships may be defined in one line as well by comma seperation.
+autoscaling group, ASG => Auto Scaling group, autoscaling
+# The above is equivalent to:
+# autoscaling group => Auto Scaling group, autoscaling
+# ASG => Auto Scaling group, autoscaling
+
+# Bi-directional synonyms are comma separated terms with no "=>"
+Employment Pass, EP
+Personal Employment Pass, PEP
+
+
+# Synonym rule count is the total number of lines defining synonym relationships
+# Term count is the total number of unique terms for all rules. 
+# This thesaurus has a synonym rule count of 6 and a term count of 18. 
+# Comments and blanks lines do not count.
