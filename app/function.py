@@ -75,9 +75,12 @@ def conversational_chat(chain, query):
     st.session_state['history'].append((query, result["answer"]))
     output = result['answer']
     if 'source_documents' in result:
+        sources = {}
         output = output + '\n \n Sources:'
         for d in result['source_documents']:
-            output += '\n' + d.metadata['source']
+            if d.metadata['source'] not in sources:
+                sources = {d.metadata['source']:''}
+                output += '\n' + d.metadata['source']
     #output = result['answer'] + '\n \n Source: ' + ((result['source_documents'][0]).metadata)['source']
     
     # QUERY API

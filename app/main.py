@@ -4,6 +4,8 @@ import re
 
 # third-party modules
 import streamlit as st
+import streamlit_survey as ss
+import uuid
 from streamlit_chat import message
 from dotenv import (
     find_dotenv,
@@ -15,7 +17,9 @@ from langdetect import DetectorFactory
 # local modules
 from function import (
     conversational_chat,
-    start_conversation
+    start_conversation,
+    goodFeedback,
+    badFeedback
 )
 
 load_dotenv(find_dotenv())
@@ -30,7 +34,7 @@ welcome_text = "How would you like us to help you today?"
 button_text = "Send"
 
 # Conditional response
-default_response = "Return your response in English. Respond with 'I'm sorry, I don't have the information.' if you don't have the inro."
+default_response = "Return your response in English. Respond with 'I'm sorry, I don't have the information.' if you don't have the info."
 mandarin_response = "Return your response in Mandarin. Respond with '我很抱歉，但我没有可用的细节。' if you don't have the info."
 malay_response = "Return your response in Bahasa Malay. Respond with 'Maaf, tetapi saya tidak mempunyai maklumat.' if you don't have the info."
 
@@ -46,6 +50,13 @@ if 'generated' not in st.session_state:
 
 if 'past' not in st.session_state:
     st.session_state['past'] = [past_session_text]
+
+if 'queryid' not in st.session_state:
+    st.session_state['queryid'] = []
+
+if 'resultids' not in st.session_state:
+    st.session_state['resultids'] = []
+
 
 chain = start_conversation()
 
@@ -85,10 +96,17 @@ with container:
         st.session_state['history'] = []
         st.session_state['past'] = [past_session_text]
         st.session_state['generated'] = [generated_session_text]
-
+        st.session_state['queryid'] = []
 
 if st.session_state['generated']:
     with response_container:
         for i in range(len(st.session_state['generated'])):
-            message(st.session_state["past"][i], is_user=True, key=str(i) + '_user', avatar_style="personas")
-            message(st.session_state["generated"][i], key=str(i), avatar_style="bottts")
+            message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style='personas')
+            message(st.session_state['generated'][i], key=str(i), avatar_style='bottts')
+            print("queryid in chat "+str(st.session_state['queryid']))
+            if(st.session_state['generated'][i] != generated_session_text ):
+                col1, col2, col3, col4 = st.columns([2,1,1,12])
+                with col2:
+                    st.button('👍', key=st.session_state['queryid'][i-1]+"a", on_click=goodFeedback, args=(st.session_state['queryid'][i-1], st.session_state['resultids'][i-1]))
+                with col3:
+                    st.button('👎', key=st.session_state['queryid'][i-1]+"b", on_click=badFeedback, args=(st.session_state['queryid'][i-1], st.session_state['resultids'][i-1]))
