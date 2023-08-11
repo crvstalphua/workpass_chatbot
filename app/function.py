@@ -1,15 +1,14 @@
 # standard library modules
 import os
-import boto3
-from botocore.config import Config
 
 # third-party modules
+import boto3
+from botocore.config import Config
 import streamlit as st
 from langchain.chains import ConversationalRetrievalChain
 from langchain.chat_models import ChatOpenAI
 from langchain.retrievers import AmazonKendraRetriever
 from langchain.prompts import PromptTemplate
-# from langchain.memory import ConversationBufferMemory
 
 # local modules
 from constants import (
@@ -20,6 +19,10 @@ from constants import (
     AWS_DEFAULT_REGION,
     AWS_SECRET_ACCESS_KEY,
     AWS_ACCESS_KEY_ID
+)
+from connect_db import (
+    insert_record,
+    select_records 
 )
 
 kendra = boto3.client('kendra')
@@ -70,7 +73,7 @@ def start_conversation():
     return chain
 
 
-def conversational_chat(chain, query):
+def conversational_chat(connection, chain, query):
     result = chain({"question": query, "chat_history": st.session_state['history']})
     st.session_state['history'].append((query, result["answer"]))
     output = result['answer']
@@ -81,6 +84,7 @@ def conversational_chat(chain, query):
             if d.metadata['source'] not in sources:
                 sources = {d.metadata['source']:''}
                 output += '\n' + d.metadata['source']
+                
     #output = result['answer'] + '\n \n Source: ' + ((result['source_documents'][0]).metadata)['source']
     
     # QUERY API
@@ -91,6 +95,9 @@ def conversational_chat(chain, query):
     for i in response['ResultItems']:
         tempList.append(i['Id'])
     st.session_state['resultids'].append(tempList)
+
+    insert_record(connection, queryid, tempList, query, result['answer'], result['source_documents'], st.session_state['history'])
+    # select_records(connection)
 
     return output
 
@@ -108,6 +115,7 @@ def goodFeedback(queryid, resultids):
         IndexId = KENDRA_INDEX_ID,
         RelevanceFeedbackItems = [relevance_items]
     )
+    print(feedback)
 
 def badFeedback(queryid, resultids):
     relevance_value = "NOT_RELEVANT"
@@ -123,3 +131,4 @@ def badFeedback(queryid, resultids):
         IndexId = KENDRA_INDEX_ID,
         RelevanceFeedbackItems = [relevance_items]
     )
+    print(feedback)

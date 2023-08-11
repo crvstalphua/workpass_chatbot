@@ -86,6 +86,7 @@ with container:
                     response_text = f'{user_input}. {default_response}'
 
                 output = conversational_chat(
+                    connection,
                     chain,
                     response_text
                 )
@@ -103,7 +104,6 @@ if st.session_state['generated']:
         for i in range(len(st.session_state['generated'])):
             message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style='personas')
             message(st.session_state['generated'][i], key=str(i), avatar_style='bottts')
-            print("queryid in chat "+str(st.session_state['queryid']))
             if(st.session_state['generated'][i] != generated_session_text ):
                 col1, col2, col3, col4 = st.columns([2,1,1,12])
                 with col2:
