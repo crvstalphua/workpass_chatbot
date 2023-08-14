@@ -1,5 +1,8 @@
 # standard library modules
 import os
+import csv  
+import pytz
+from datetime import datetime
 
 # third-party modules
 import boto3
@@ -15,14 +18,7 @@ from constants import (
     MODEL_NAME,
     OPENAI_API_KEY,
     KENDRA_INDEX_ID,
-    TEMPERATURE,
-    AWS_DEFAULT_REGION,
-    AWS_SECRET_ACCESS_KEY,
-    AWS_ACCESS_KEY_ID
-)
-from connect_db import (
-    insert_record,
-    select_records 
+    TEMPERATURE
 )
 
 kendra = boto3.client('kendra')
@@ -54,7 +50,7 @@ QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],templat
 
 def start_conversation():
 
-    retriever = AmazonKendraRetriever(index_id=KENDRA_INDEX_ID)
+    retriever = AmazonKendraRetriever(index_id=KENDRA_INDEX_ID, top_k=1)
     llm=ChatOpenAI(
             temperature=TEMPERATURE,
             model_name=MODEL_NAME,
@@ -63,48 +59,54 @@ def start_conversation():
         )
 
     chain = ConversationalRetrievalChain.from_llm(
+        combine_docs_chain_kwargs={'prompt': QA_CHAIN_PROMPT},
         llm=llm,
         condense_question_prompt=CONDENSE_PROMPT,
         retriever=retriever,
-        combine_docs_chain_kwargs={'prompt': QA_CHAIN_PROMPT},
         return_source_documents=True,
+        return_generated_question=True,
         verbose = True)
 
     return chain
 
 
-def conversational_chat(connection, chain, query):
+def conversational_chat(chain, query):   
+    resultIds = []
+    queryId = ""
+
     result = chain({"question": query, "chat_history": st.session_state['history']})
     st.session_state['history'].append((query, result["answer"]))
     output = result['answer']
     if 'source_documents' in result:
-        sources = {}
+        queryId = result['source_documents'][0].metadata['result_id'][:36] # The queryid is the first 36 characters of the results-id string
         output = output + '\n \n Sources:'
         for d in result['source_documents']:
-            if d.metadata['source'] not in sources:
-                sources = {d.metadata['source']:''}
-                output += '\n' + d.metadata['source']
-                
+            output += '\n' + d.metadata['source']
+            resultIds.append(d.metadata['result_id'])
+
+    print("queryid "+str(queryId))
+    print("resultids "+str(resultIds))
+    st.session_state['queryid'].append(queryId)   
+    st.session_state['resultids'].append(resultIds)            
     #output = result['answer'] + '\n \n Source: ' + ((result['source_documents'][0]).metadata)['source']
     
-    # QUERY API
-    response = kendra.query(QueryText = query, IndexId = KENDRA_INDEX_ID)
-    queryid = response['QueryId']
-    st.session_state['queryid'].append(queryid)
-    tempList = []
-    for i in response['ResultItems']:
-        tempList.append(i['Id'])
-    st.session_state['resultids'].append(tempList)
-
-    insert_record(connection, queryid, tempList, query, result['answer'], result['source_documents'], st.session_state['history'])
-    # select_records(connection)
+    # Write to CSVs
+    header = ["Time_Enquired", "QueryId", "ResultIds", "Original Question", "Generated Question", "Answer", "Source_Doc", "Chat_History"]
+    now = datetime.strftime(datetime.now(pytz.timezone('Asia/Singapore')), "%Y-%m-%d %H:%M:%S")
+    data = [now, queryId, resultIds, query, result['generated_question'], result['answer'], result['source_documents'], st.session_state['history']]
+    with open("./app/prev_records/qna.csv", 'a', encoding='UTF8',newline='') as f:
+        writer = csv.writer(f)
+        # writer.writerow(header)
+        writer.writerow(data)
 
     return output
 
 def goodFeedback(queryid, resultids):
     relevance_value = "RELEVANT"
     relevance_items = {}
+    tempList = []
     for id in resultids:
+        tempList.append(id)
         relevance_items = {
             "ResultId": id,
             "RelevanceValue": relevance_value,
@@ -115,12 +117,22 @@ def goodFeedback(queryid, resultids):
         IndexId = KENDRA_INDEX_ID,
         RelevanceFeedbackItems = [relevance_items]
     )
-    print(feedback)
+
+    # Write to CSVs
+    header = ["Time_Enquired", "QueryId", "ResultIds", "Status", "Feedback"]
+    now = datetime.strftime(datetime.now(pytz.timezone('Asia/Singapore')), "%Y-%m-%d %H:%M:%S")
+    data = [now, queryid, tempList, "RELEVANT", feedback]
+    with open("./app/prev_records/feedback.csv", 'a', encoding='UTF8',newline='') as f:
+        writer = csv.writer(f)
+        # writer.writerow(header)
+        writer.writerow(data)
 
 def badFeedback(queryid, resultids):
     relevance_value = "NOT_RELEVANT"
     relevance_items = {}
+    tempList = []
     for id in resultids:
+        tempList.append(id)
         relevance_items = {
             "ResultId": id,
             "RelevanceValue": relevance_value,
@@ -131,4 +143,12 @@ def badFeedback(queryid, resultids):
         IndexId = KENDRA_INDEX_ID,
         RelevanceFeedbackItems = [relevance_items]
     )
-    print(feedback)
+
+    # Write to CSVs
+    header = ["Time_Enquired", "QueryId", "ResultIds", "Status", "Feedback"]
+    now = datetime.strftime(datetime.now(pytz.timezone('Asia/Singapore')), "%Y-%m-%d %H:%M:%S")
+    data = [now, queryid, tempList, "NOT_RELEVANT", feedback]
+    with open("./app/prev_records/feedback.csv", 'a', encoding='UTF8',newline='') as f:
+        writer = csv.writer(f)
+        # writer.writerow(header)
+        writer.writerow(data)

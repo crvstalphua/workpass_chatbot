@@ -86,7 +86,6 @@ with container:
                     response_text = f'{user_input}. {default_response}'
 
                 output = conversational_chat(
-                    connection,
                     chain,
                     response_text
                 )
