@@ -97,6 +97,7 @@ with container:
         st.session_state['past'] = [past_session_text]
         st.session_state['generated'] = [generated_session_text]
         st.session_state['queryid'] = []
+        st.session_state['resultids'] = []
 
 if st.session_state['generated']:
     with response_container:
@@ -104,7 +105,7 @@ if st.session_state['generated']:
             message(st.session_state['past'][i], is_user=True, key=str(i) + '_user', avatar_style='personas')
             message(st.session_state['generated'][i], key=str(i), avatar_style='bottts')
             if(st.session_state['generated'][i] != generated_session_text ):
-                col1, col2, col3, col4 = st.columns([2,1,1,12])
+                col1, col2, col3, col4 = st.columns([2,1,1,14])
                 with col2:
                     st.button('👍', key=st.session_state['queryid'][i-1]+"a", on_click=goodFeedback, args=(st.session_state['queryid'][i-1], st.session_state['resultids'][i-1]))
                 with col3:

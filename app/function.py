@@ -50,7 +50,7 @@ QA_CHAIN_PROMPT = PromptTemplate(input_variables=["context", "question"],templat
 
 def start_conversation():
 
-    retriever = AmazonKendraRetriever(index_id=KENDRA_INDEX_ID, top_k=1)
+    retriever = AmazonKendraRetriever(index_id=KENDRA_INDEX_ID, top_k=3)
     llm=ChatOpenAI(
             temperature=TEMPERATURE,
             model_name=MODEL_NAME,
@@ -84,8 +84,6 @@ def conversational_chat(chain, query):
             output += '\n' + d.metadata['source']
             resultIds.append(d.metadata['result_id'])
 
-    print("queryid "+str(queryId))
-    print("resultids "+str(resultIds))
     st.session_state['queryid'].append(queryId)   
     st.session_state['resultids'].append(resultIds)            
     #output = result['answer'] + '\n \n Source: ' + ((result['source_documents'][0]).metadata)['source']
